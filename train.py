@@ -170,9 +170,15 @@ def load_initial_pack(repo_id: str, init_voice: str) -> torch.Tensor:
 
 
 def freeze_model(model: KModel) -> None:
-    model.eval()
+    # Keep the model in training mode so cuDNN LSTM backward works while
+    # gradients still flow into the trainable pack.
+    model.train()
     for param in model.parameters():
         param.requires_grad_(False)
+    # Disable stochastic dropout because we are not training model weights.
+    for module in model.modules():
+        if isinstance(module, torch.nn.Dropout):
+            module.eval()
 
 
 def phonemes_to_input_ids(model: KModel, phonemes: str, device: str) -> tuple[str, torch.Tensor]:
