@@ -25,6 +25,8 @@ LANG_CODES = dict(
     a='American English',
     b='British English',
 
+    th='th',
+
     # espeak-ng
     e='es',
     f='fr-fr',
@@ -138,6 +140,11 @@ class KPipeline:
             except ImportError:
                 logger.error("You need to `pip install misaki[zh]` to use lang_code='z'")
                 raise
+            
+        elif lang_code == 'th':
+            from .th import THG2P
+            self.g2p = THG2P()
+
         else:
             language = LANG_CODES[lang_code]
             logger.warning(f"Using EspeakG2P(language='{language}'). Chunking logic not yet implemented, so long texts may be truncated unless you split them with '\\n'.")
@@ -165,12 +172,14 @@ class KPipeline:
     Delimiter is optional and defaults to ','.
     """
     def load_voice(self, voice: Union[str, torch.FloatTensor], delimiter: str = ",") -> torch.FloatTensor:
+        
         if isinstance(voice, torch.FloatTensor):
             return voice
         if voice in self.voices:
             return self.voices[voice]
         logger.debug(f"Loading voice: {voice}")
         packs = [self.load_single_voice(v) for v in voice.split(delimiter)]
+
         if len(packs) == 1:
             return packs[0]
         self.voices[voice] = torch.mean(torch.stack(packs), dim=0)

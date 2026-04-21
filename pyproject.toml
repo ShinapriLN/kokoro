@@ -22,8 +22,12 @@ dependencies = [
     "loguru",
     "misaki[en]>=0.9.4",
     "numpy",
+    "pip>=26.0.1",
+    "sentence-transformers>=5.4.1",
+    "sentencepiece>=0.2.1",
+    "soundfile>=0.13.1",
     "torch",
-    "transformers"
+    "transformers",
 ]
 
 [project.scripts]
